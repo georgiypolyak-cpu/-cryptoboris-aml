@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoBoris AML</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --surface2: #f1f0ec;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --text3: #9e9e9a;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --green-bg: #EAF3DE; --green-text: #3B6D11;
+    --amber-bg: #FAEEDA; --amber-text: #854F0B;
+    --red-bg: #FCEBEB; --red-text: #A32D2D;
+    --blue-bg: #E6F1FB; --blue-text: #185FA5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --surface: #252523;
+      --surface2: #2e2e2b;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --text: #f0efe9;
+      --text2: #9e9e9a;
+      --text3: #6b6b67;
+      --green-bg: #173404; --green-text: #C0DD97;
+      --amber-bg: #412402; --amber-text: #FAC775;
+      --red-bg: #501313; --red-text: #F7C1C1;
+      --blue-bg: #042C53; --blue-text: #B5D4F4;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 36px; height: 36px;
+    background: #1a1a18;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  @media (prefers-color-scheme: dark) {
+    .logo { background: #f0efe9; }
+    .logo svg path { fill: #1a1a18; }
+  }
+
+  .logo svg { width: 20px; height: 20px; }
+
+  .logo-text h1 { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.2px; }
+  .logo-text p { font-size: 12px; color: var(--text2); }
+
+  .badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--green-bg);
+    color: var(--green-text);
+    font-weight: 500;
+  }
+
+  main { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .search-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .search-card h2 { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .search-card p { font-size: 13px; color: var(--text2); margin-bottom: 1rem; }
+
+  .input-row { display: flex; gap: 8px; }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus { border-color: #378ADD; box-shadow: 0 0 0 3px rgba(55,138,221,0.15); }
+  input[type="text"]::placeholder { color: var(--text3); }
+
+  button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  button:hover { opacity: 0.85; }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .api-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .addr-box {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 11px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text2);
+    word-break: break-all;
+    margin-bottom: 1.25rem;
+  }
+
+  .score-row { display: flex; align-items: center; gap: 16px; margin-bottom: 1.25rem; }
+
+  .score-circle {
+    width: 68px; height: 68px;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .score-circle .num { font-size: 24px; font-weight: 600; line-height: 1; }
+  .score-circle .lbl { font-size: 10px; margin-top: 2px; opacity: 0.7; }
+
+  .score-meta h3 { font-size: 15px; font-weight: 500; color: var(--text); }
+  .score-meta p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+  .bar-wrap { margin-bottom: 1.25rem; }
+  .bar-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+  .bar-bg { background: var(--surface2); border-radius: 4px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+  .flags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1.25rem; }
+  .flag {
+    font-size: 12px; font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .flag.danger { background: var(--red-bg); color: var(--red-text); }
+  .flag.warn { background: var(--amber-bg); color: var(--amber-text); }
+  .flag.ok { background: var(--green-bg); color: var(--green-text); }
+  .flag.info { background: var(--blue-bg); color: var(--blue-text); }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .stat { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; }
+  .stat .slbl { font-size: 11px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .sval { font-size: 16px; font-weight: 500; color: var(--text); }
+
+  .section-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+  .factor-list { margin-bottom: 1.25rem; }
+  .factor-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; color: var(--text2);
+    padding: 7px 0;
+    border-top: 0.5px solid var(--border);
+  }
+  .factor-item:first-child { border-top: none; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+
+  .verdict {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+  }
+  .verdict.pass { background: var(--green-bg); color: var(--green-text); }
+  .verdict.review { background: var(--amber-bg); color: var(--amber-text); }
+  .verdict.block { background: var(--red-bg); color: var(--red-text); }
+
+  .verdict-icon { font-size: 20px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text3);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  .loading-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text2);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-card {
+    background: var(--red-bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: var(--red-text);
+    font-size: 13px;
+    margin-bottom: 1rem;
+  }
+
+  .disclaimer {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.6;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .checks-legend {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .checks-legend h3 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+  .check-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2); padding: 5px 0; }
+  .check-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 12px;
+    color: var(--text3);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="white"/>
+      <path d="M9 12l2 2 4-4" stroke="#1a1a18" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="logo-text">
+    <h1>CryptoBoris AML</h1>
+    <p>Проверка ETH / ERC-20 адресов</p>
+  </div>
+  <span class="badge">● Онлайн</span>
+</header>
+
+<main>
+
+  <div class="search-card">
+    <h2>Проверить адрес</h2>
+    <p>Введи Ethereum-адрес кошелька для AML-скоринга</p>
+    <div class="input-row">
+      <input type="text" id="addrInput" placeholder="0x742d35Cc6634C0532925a3b8D4C9..." />
+      <button id="checkBtn" onclick="runCheck()">Проверить</button>
+    </div>
+    <p class="api-note">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 2a.75.75 0 110 1.5A.75.75 0 018 3zm0 3.5a.75.75 0 01.75.75v4a.75.75 0 01-1.5 0v-4A.75.75 0 018 6.5z"/></svg>
+      Etherscan API: <span id="apiStatus" style="color: var(--amber-text);">ключ не задан — только проверка по спискам</span>
+    </p>
+  </div>
+
+  <div class="checks-legend">
+    <h3>Что проверяется</h3>
+    <div class="check-row"><div class="check-dot" style="background:#E24B4A"></div>Санкционные адреса OFAC SDN</div>
+    <div class="check-row"><div class="check-dot" style="background:#E24B4A"></div>Tornado Cash (миксер) — прямой контакт</div>
+    <div class="check-row"><div class="check-dot" style="background:#E24B4A"></div>Адреса даркнет-маркетов</div>
+    <div class="check-row"><div class="check-dot" style="background:#EF9F27"></div>Возраст кошелька и история транзакций</div>
+    <div class="check-row"><div class="check-dot" style="background:#639922"></div>USDT ERC-20 активность</div>
+  </div>
+
+  <div id="output">
+    <div class="empty-state">
+      <div class="icon">🔍</div>
+      <p>Введи адрес выше для проверки</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  CryptoBoris AML · Базовая эвристика на основе публичных списков · Не является заменой профессиональных KYT-сервисов
+</footer>
+
+<script>
+const ETHERSCAN_API_KEY = 'HYV6Z19HDWA2V4ANWDHYU3JT66A6SVVA61';
+
+const TORNADO_CASH = new Set([
+  "0x722122df12d4e14e13ac3b6895a86e84145b6967",
+  "0xd90e2f925da726b50c4ed8d0fb90ad053324f31b",
+  "0xfd8610d20aa15b7b2e3be39b396a1bc3516c7144",
+  "0x07687e702b410fa43f4cb4af7fa097918ffd2730",
+  "0x23773e65ed146a459667be7d4ef08477a68fb0cd",
+  "0x22aaa7720ddd5388a3c0a3333430953c68f1849b",
+  "0x03893a7c7463ae47d46bc7f091665f1893656003",
+  "0x2717c5e28cf931547b621a5dddb772ab6a35b701",
+  "0xd21be7248e0197ee08e0c20d4a96debdac3d20af",
+  "0x8589427373d6d84e98730d7795d8f6f8731fda16",
+  "0x47ce0c6ef4b686bc8c5de7fa004680e03c88f83e",
+  "0x910cbd523d972eb0a6f4cae4618ad62622b39dbf",
+  "0xa160cdab225685da1d56aa342ad8841c3b53f291",
+  "0xf60dd140cff0706bae9cd734ac3ae76ad9ebc32a",
+  "0xba214c1c1928a32bffe790263e38b4af9bfcd659"
+]);
+
+const OFAC_SDN = new Set([
+  "0x7f367cc41522ce07553e823bf3be79a889debe1b",
+  "0xd882cfc20f52f2599d84b8e8d58c7fb62cfe344b",
+  "0x901bb9583b24d97e995513c6778dc6888ab6870e",
+  "0xa7e5d5a720f06526557c513402f2e6b5fa20b008",
+  "0x8576acc5c05d6ce88f4e49bf65bdf0c62f91353c",
+  "0x1da5821544e25c636c1417ba96ade4cf6d2f9b5a",
+  "0x7db418b5d567a4e0e8c59ad71be1fce48f3e6107",
+  "0x72a5843cc08275c8171e582972aa4fda8c397b2a",
+  "0x3cbded43efdaf0fc77b9c55f6fc9988fcc9b0d09",
+  "0x9c2bc757b66f24d60f016b6237f8cdd414a879fa"
+]);
+
+const DARKNET = new Set([
+  "0xab5c8051b9a1df1aab0149f8b0630848b7ecabf6",
+  "0x67d40ee1a85bf4a4bb7ffae4583197567f5e5c4d",
+  "0x6acdfba02d390b97ac2b2d42a63e85293bcc160e"
+]);
+
+if (ETHERSCAN_API_KEY !== 'YourApiKeyToken') {
+  document.getElementById('apiStatus').textContent = 'ключ подключён — полная проверка';
+  document.getElementById('apiStatus').style.color = 'var(--green-text)';
+}
+
+async function runCheck() {
+  const raw = document.getElementById('addrInput').value.trim();
+  const addr = raw.toLowerCase();
+  const out = document.getElementById('output');
+
+  if (!raw.match(/^0x[0-9a-fA-F]{40}$/)) {
+    out.innerHTML = `<div class="error-card">⚠ Некорректный адрес. Формат: 0x + 40 шестнадцатеричных символов</div>`;
+    return;
+  }
+
+  out.innerHTML = `<div class="loading-state"><div class="spinner"></div>Запрашиваю данные...</div>`;
+  document.getElementById('checkBtn').disabled = true;
+
+  let txs = [], tokenTxs = [];
+
+  if (ETHERSCAN_API_KEY !== 'YourApiKeyToken') {
+    try {
+      const [r1, r2] = await Promise.all([
+        fetch(`https://api.etherscan.io/api?module=account&action=txlist&address=${raw}&startblock=0&endblock=99999999&page=1&offset=100&sort=desc&apikey=${ETHERSCAN_API_KEY}`),
+        fetch(`https://api.etherscan.io/api?module=account&action=tokentx&address=${raw}&startblock=0&endblock=99999999&page=1&offset=50&sort=desc&apikey=${ETHERSCAN_API_KEY}`)
+      ]);
+      const d1 = await r1.json();
+      const d2 = await r2.json();
+      if (Array.isArray(d1.result)) txs = d1.result;
+      if (Array.isArray(d2.result)) tokenTxs = d2.result;
+    } catch(e) { /* продолжаем без данных */ }
+  }
+
+  renderResult(raw, addr, txs, tokenTxs, out);
+  document.getElementById('checkBtn').disabled = false;
+}
+
+function renderResult(raw, addr, txs, tokenTxs, out) {
+  const allAddrs = new Set();
+  txs.forEach(tx => {
+    if (tx.from) allAddrs.add(tx.from.toLowerCase());
+    if (tx.to) allAddrs.add(tx.to.toLowerCase());
+  });
+  tokenTxs.forEach(tx => {
+    if (tx.from) allAddrs.add(tx.from.toLowerCase());
+    if (tx.to) allAddrs.add(tx.to.toLowerCase());
+  });
+  allAddrs.delete(addr);
+
+  const isOFAC = OFAC_SDN.has(addr);
+  const isTornado = TORNADO_CASH.has(addr);
+  const isDarknet = DARKNET.has(addr);
+
+  let ofacContact = false, tornadoContact = false, darknetContact = false;
+  allAddrs.forEach(a => {
+    if (OFAC_SDN.has(a)) ofacContact = true;
+    if (TORNADO_CASH.has(a)) tornadoContact = true;
+    if (DARKNET.has(a)) darknetContact = true;
+  });
+
+  const txCount = txs.length;
+  const walletAge = txs.length > 0
+    ? Math.floor((Date.now()/1000 - parseInt(txs[txs.length-1].timeStamp)) / 86400)
+    : null;
+  const usdtTxs = tokenTxs.filter(t => t.tokenSymbol === 'USDT').length;
+  const uniqueCp = new Set(txs.map(tx => tx.from?.toLowerCase() === addr ? tx.to?.toLowerCase() : tx.from?.toLowerCase()).filter(Boolean)).size;
+
+  let score = 0;
+  const factors = [];
+
+  if (isOFAC)       { score = 100; factors.push({text: 'Адрес находится в санкционном списке OFAC SDN', lvl: 'danger'}); }
+  if (isDarknet)    { score = Math.max(score, 80); factors.push({text: 'Адрес идентифицирован как даркнет-маркет', lvl: 'danger'}); }
+  if (isTornado)    { score = Math.max(score, 70); factors.push({text: 'Адрес является контрактом Tornado Cash', lvl: 'danger'}); }
+  if (ofacContact)  { score += 55; factors.push({text: 'Прямое взаимодействие с адресом из списка OFAC SDN', lvl: 'danger'}); }
+  if (darknetContact) { score += 40; factors.push({text: 'Прямое взаимодействие с адресом даркнет-маркета', lvl: 'danger'}); }
+  if (tornadoContact) { score += 35; factors.push({text: 'Взаимодействие с контрактом Tornado Cash (миксер)', lvl: 'warn'}); }
+  if (walletAge !== null && walletAge < 7)  { score += 15; factors.push({text: `Кошелёк создан ${walletAge} дн. назад — нет истории`, lvl: 'warn'}); }
+  if (txCount > 0 && txCount < 3)           { score += 10; factors.push({text: 'Очень мало транзакций', lvl: 'warn'}); }
+  if (txCount === 0) { score += 5; factors.push({text: 'Нет транзакций — адрес не использовался', lvl: 'info'}); }
+  if (factors.length === 0) factors.push({text: 'Совпадений с известными адресами риска не найдено', lvl: 'ok'});
+
+  score = Math.min(score, 100);
+
+  const isHigh = score >= 60;
+  const isMed  = score >= 30 && score < 60;
+
+  const circleStyle = isHigh
+    ? `background:var(--red-bg); color:var(--red-text);`
+    : isMed
+    ? `background:var(--amber-bg); color:var(--amber-text);`
+    : `background:var(--green-bg); color:var(--green-text);`;
+
+  const barColor = isHigh ? '#E24B4A' : isMed ? '#EF9F27' : '#639922';
+
+  const verdictClass = isHigh ? 'block' : isMed ? 'review' : 'pass';
+  const verdictIcon  = isHigh ? '🚫' : isMed ? '⚠️' : '✅';
+  const verdictText  = isHigh
+    ? 'БЛОКИРОВАТЬ — высокий риск'
+    : isMed
+    ? 'ТРЕБУЕТ ПРОВЕРКИ — средний риск'
+    : 'ПРОПУСТИТЬ — низкий риск';
+
+  const flags = [];
+  if (isOFAC)        flags.push({text: 'OFAC SDN', cls: 'danger'});
+  if (isDarknet)     flags.push({text: 'Даркнет', cls: 'danger'});
+  if (isTornado)     flags.push({text: 'Tornado Cash', cls: 'danger'});
+  if (ofacContact)   flags.push({text: 'Контакт OFAC', cls: 'danger'});
+  if (tornadoContact) flags.push({text: 'Контакт миксер', cls: 'warn'});
+  if (darknetContact) flags.push({text: 'Контакт даркнет', cls: 'danger'});
+  if (usdtTxs > 0)  flags.push({text: `USDT: ${usdtTxs} тр.`, cls: 'info'});
+  if (flags.length === 0) flags.push({text: 'Чисто', cls: 'ok'});
+
+  const dotColor = {danger:'#E24B4A', warn:'#EF9F27', ok:'#639922', info:'#378ADD'};
+  const hasRealData = txs.length > 0 || tokenTxs.length > 0;
+
+  out.innerHTML = `
+    <div class="result-card">
+      <div class="addr-box">${raw}</div>
+
+      <div class="score-row">
+        <div class="score-circle" style="${circleStyle}">
+          <span class="num">${score}</span>
+          <span class="lbl">/ 100</span>
+        </div>
+        <div class="score-meta">
+          <h3>Risk score</h3>
+          <p>${hasRealData ? `Проанализировано ${txCount} транзакций` : 'Только проверка по спискам'}</p>
+        </div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-labels">
+          <span>Уровень риска</span>
+          <span>${isHigh ? 'высокий' : isMed ? 'средний' : 'низкий'}</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${score}%; background:${barColor};"></div></div>
+      </div>
+
+      <div class="flags">
+        ${flags.map(f => `<span class="flag ${f.cls}">${f.text}</span>`).join('')}
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><div class="slbl">Транзакций</div><div class="sval">${txCount || '—'}</div></div>
+        <div class="stat"><div class="slbl">Возраст</div><div class="sval">${walletAge !== null ? walletAge + ' дн.' : '—'}</div></div>
+        <div class="stat"><div class="slbl">Контрагенты</div><div class="sval">${uniqueCp || '—'}</div></div>
+        <div class="stat"><div class="slbl">USDT токены</div><div class="sval">${usdtTxs || '—'}</div></div>
+      </div>
+
+      <div class="section-title">Выявленные факторы</div>
+      <div class="factor-list">
+        ${factors.map(f => `<div class="factor-item"><div class="dot" style="background:${dotColor[f.lvl]};"></div><span>${f.text}</span></div>`).join('')}
+      </div>
+
+      <div class="verdict ${verdictClass}">
+        <span class="verdict-icon">${verdictIcon}</span>
+        ${verdictText}
+      </div>
+
+      <div class="disclaimer">
+        Проверка выполнена: ${new Date().toLocaleString('ru-RU')} · Базовая эвристика на основе публичных списков OFAC SDN и Tornado Cash. Не заменяет профессиональные KYT-сервисы (Crystal Blockchain, Chainalysis). Результаты носят информационный характер.
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('addrInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runCheck();
+});
+</script>
+</body>
+</html>
